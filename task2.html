@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch Web Application</title>
+    <style>
+        body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.stopwatch {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+h1 {
+    font-size: 3em;
+    margin: 0 0 20px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    background: #6200ea;
+    color: white;
+    font-size: 1em;
+}
+
+button:hover {
+    background: #3700b3;
+}
+
+.laps {
+    margin-top: 20px;
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 10px;
+}
+
+.laps ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.laps li {
+    margin: 5px 0;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: #fff;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stopwatch">
+            <h1 id="display">00:00:00.000</h1>
+            <div class="buttons">
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="reset">Reset</button>
+                <button id="lap">Lap</button>
+            </div>
+            <div class="laps">
+                <ul id="laps-list"></ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        let startTime;
+let updatedTime;
+let difference;
+let timerInterval;
+let isRunning = false;
+let lapCounter = 1;
+
+const display = document.getElementById('display');
+const startButton = document.getElementById('start');
+const pauseButton = document.getElementById('pause');
+const resetButton = document.getElementById('reset');
+const lapButton = document.getElementById('lap');
+const lapsList = document.getElementById('laps-list');
+
+startButton.addEventListener('click', () => {
+    if (!isRunning) {
+        startTime = new Date().getTime() - (difference || 0);
+        timerInterval = setInterval(updateTime, 10); // Update every 10 milliseconds
+        isRunning = true;
+    }
+});
+
+pauseButton.addEventListener('click', () => {
+    if (isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+    }
+});
+
+resetButton.addEventListener('click', () => {
+    clearInterval(timerInterval);
+    isRunning = false;
+    difference = 0;
+    display.textContent = "00:00:00.000"; // Reset display to include milliseconds
+    lapsList.innerHTML = ''; // Clear all laps
+    lapCounter = 1;
+});
+
+lapButton.addEventListener('click', () => {
+    if (isRunning) {
+        const lapTime = display.textContent;
+        const lapItem = document.createElement('li');
+        lapItem.textContent = `Lap ${lapCounter}: ${lapTime}`;
+        lapsList.appendChild(lapItem);
+        lapCounter++;
+    }
+});
+
+function updateTime() {
+    updatedTime = new Date().getTime();
+    difference = updatedTime - startTime;
+
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    const milliseconds = Math.floor((difference % 1000));
+
+    display.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${padMilliseconds(milliseconds)}`;
+}
+
+function pad(number) {
+    return number < 10 ? '0' + number : number;
+}
+
+function padMilliseconds(number) {
+    if (number < 10) {
+        return '00' + number;
+    } else if (number < 100) {
+        return '0' + number;
+    } else {
+        return number;
+    }
+}
+
+    </script>
+</body>
+</html>
